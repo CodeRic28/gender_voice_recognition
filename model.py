@@ -5,7 +5,7 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.optimizers import Adam
 
 base_dir = 'images'
-
+print(tf.device('/device:GPU:1'))
 print("Contents of base dir: ",os.listdir(base_dir))
 print("Contents of train dir: \n", os.listdir(f"{base_dir}/training"))
 print("Contents of validation dir: \n", os.listdir(f"{base_dir}/validation"))
@@ -26,23 +26,23 @@ model = tf.keras.models.Sequential([
     tf.keras.layers.MaxPooling2D(2,2),
     tf.keras.layers.Conv2D(32,(3,3), activation='relu'),
     tf.keras.layers.MaxPooling2D(2,2),
-    # tf.keras.layers.Conv2D(64, (3,3), activation='relu'),
-    # tf.keras.layers.MaxPooling2D(2,2),
+    tf.keras.layers.Conv2D(64, (3,3), activation='relu'),
+    tf.keras.layers.MaxPooling2D(2,2),
     tf.keras.layers.Flatten(),
-    tf.keras.layers.Dense(128, activation='relu'),
+    tf.keras.layers.Dense(512, activation='relu'),
     tf.keras.layers.Dense(1,activation='sigmoid')
 ])
 
 print(model.summary())
 
-algo = Adam(lr=0.0001)
+# algo = Adam(lr=0.01)
 model.compile(
-    optimizer=algo,
+    optimizer='adam',
     loss='binary_crossentropy',
     metrics=['accuracy']
 )
 
-model.save("model_lr.h5")
+model.save("model.h5")
 
 
 # All images will be rescaled by 1./255.
