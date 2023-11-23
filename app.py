@@ -1,9 +1,10 @@
-from transformers import pipeline
 from spectrogram import create_spectrogram
 import gradio as gr
 import numpy as np
 from tensorflow.keras.models import load_model
 from tensorflow.keras.utils import load_img, img_to_array
+import subprocess
+
 
 model = load_model("model.h5")  # update with your model id
 # pipe = pipeline("gender-voice-recognition", model=model)
@@ -47,9 +48,12 @@ def transcribe_and_predict(audio_waveform):
 demo = gr.Blocks()
 mic_transcribe = gr.Interface(
     fn=transcribe_and_predict,
-    inputs=gr.Audio(sources="microphone", type="numpy", block_size=1024),
-    outputs=gr.Image(),  # Assuming you want to visualize the spectrogram as an image
+    inputs=gr.Audio(sources="upload", type="filepath", block_size=1024),
+    outputs=gr.outputs.Textbox(),
 )
 
-# Launch the Gradio interface
-mic_transcribe.launch(inbrowser=True, inline=True)
+# Launch Gradio interface
+mic_transcribe.launch(inbrowser=True, inline=True,debug=True)
+
+
+
