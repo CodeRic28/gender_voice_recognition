@@ -30,19 +30,17 @@ model = tf.keras.models.Sequential([
     tf.keras.layers.MaxPooling2D(2,2),
     tf.keras.layers.Flatten(),
     tf.keras.layers.Dense(512, activation='relu'),
-    tf.keras.layers.Dense(1,activation='sigmoid')
+    tf.keras.layers.Dense(2,activation='softmax')
 ])
 
 print(model.summary())
 
 # algo = Adam(lr=0.01)
 model.compile(
-    optimizer='adam',
-    loss='binary_crossentropy',
+    optimizer='rmsprop',
+    loss='categorical_crossentropy',
     metrics=['accuracy']
 )
-
-model.save("model.h5")
 
 
 # All images will be rescaled by 1./255.
@@ -54,7 +52,7 @@ test_datagen  = ImageDataGenerator( rescale = 1.0/255. )
 # --------------------
 train_generator = train_datagen.flow_from_directory(training_dir,
                                                     batch_size=20,
-                                                    class_mode='binary',
+                                                    class_mode='categorical',
                                                     target_size=(150, 150))
 
 # --------------------
@@ -62,7 +60,7 @@ train_generator = train_datagen.flow_from_directory(training_dir,
 # --------------------
 validation_generator =  test_datagen.flow_from_directory(validation_dir,
                                                          batch_size=20,
-                                                         class_mode  = 'binary',
+                                                         class_mode  = 'categorical',
                                                          target_size = (150, 150))
 
 history = model.fit(
@@ -72,8 +70,24 @@ history = model.fit(
             verbose=1
 )
 
+import matplotlib.pyplot as plt
+# Plot the model results
+acc = history.history['accuracy']
+val_acc = history.history['val_accuracy']
+loss = history.history['loss']
+val_loss = history.history['val_loss']
+epochs = range(len(acc))
+plt.plot(epochs, acc, 'r', label='Training accuracy')
+plt.plot(epochs, val_acc, 'b', label='Validation accuracy')
+plt.title('Training and validation accuracy')
+plt.figure()
+plt.plot(epochs, loss, 'r', label='Training Loss')
+plt.plot(epochs, val_loss, 'b', label='Validation Loss')
+plt.title('Training and validation loss')
+plt.legend()
+plt.show()
 
 loss, accuracy = model.evaluate(validation_generator)
 
-
+model.save("model_2.h5")
 

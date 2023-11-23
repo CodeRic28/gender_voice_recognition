@@ -1,67 +1,55 @@
-import os
-import tensorflow as tf
-import librosa
-import librosa.display
-import matplotlib.pyplot as plt
+from transformers import pipeline
+from spectrogram import create_spectrogram
 import gradio as gr
+import numpy as np
+from tensorflow.keras.models import load_model
+from tensorflow.keras.utils import load_img, img_to_array
 
-# Load the pre-trained model
-model = tf.keras.models.load_model("model.h5")
-
-path = os.path.join(os.getcwd(),'cv-valid-test/sample-000006.mp3')
-def create_spectrogram(input_mp3_file, output_directory):
-    # Extract the filename without extension
-    file_name = os.path.splitext(os.path.basename(input_mp3_file))[0]
-
-    # Create the output directory if it doesn't exist
-    if not os.path.exists(output_directory):
-        os.makedirs(output_directory)
-
-    # Load the audio signal from the MP3 file
-    audio_signal, sample_rate = librosa.load(input_mp3_file, sr=None)
-
-    # Create a figure to plot the spectrogram
-    plt.figure(figsize=(14, 5))
-
-    # Convert audio waveform to spectrogram
-    X = librosa.stft(audio_signal)  # Fourier transform
-    Xdb = librosa.amplitude_to_db(abs(X))
-
-    # Display the spectrogram
-    librosa.display.specshow(Xdb, sr=sample_rate, x_axis='time', y_axis='log')
-    plt.colorbar()
-    # Save the spectrogram as a PNG file
-    spectrogram_filepath = os.path.join(output_directory, f"{file_name}_spectrogram.png")
-    plt.savefig(spectrogram_filepath, bbox_inches='tight')
-
-    # Close the current figure to release memory
-    plt.close()
-
-    return spectrogram_filepath
-
-def classify_spectrogram(spectrogram_path):
-    # Load the spectrogram as an image
-    img = tf.keras.preprocessing.image.load_img(spectrogram_path, target_size=(150, 150))
-    img_array = tf.keras.preprocessing.image.img_to_array(img)
-    img_array = tf.expand_dims(img_array, 0)  # Create a batch
-
-    # Predict the spectrogram using the loaded model
-    predictions = model.predict(img_array)
-    if predictions[0] > 0.5:
-        return "Female"
-    else:
-        return "Male"
-
-# # Define Gradio interface
-input_mp3 = gr.inputs.File(label="Input MP3 Audio")
-output_spectrogram = gr.outputs.Image(label="Spectrogram Image")
-output_gender = gr.outputs.Text(label="Gender Prediction")
+model = load_model("model.h5")  # update with your model id
+# pipe = pipeline("gender-voice-recognition", model=model)
 
 
-# Create Gradio app
-gr.Interface(
-    fn=[create_spectrogram, classify_spectrogram],
-    inputs=input_mp3,
-    outputs=[output_spectrogram, output_gender],
-    live=True
-).launch()
+# def transcribe_and_predict(spectrogram):
+#     img = load_img(spectrogram, target_size=(150, 150))
+#     x = img_to_array(img)
+#     x = x / 255.0
+#     x = np.expand_dims(x, axis=0)
+#     # Make predictions using the model
+#     predictions = model.predict(spectrogram)
+#
+#     if predictions[0][0] > predictions[0][1]:
+#         return predictions[0][0]
+#     return predictions[0][1]
+
+
+def transcribe_and_predict(audio_waveform):
+    # Assuming create_spectrogram returns a numpy array representing the spectrogram
+    spectrogram = create_spectrogram(audio_waveform)
+
+    # Resize the spectrogram to match the expected input size of the model
+    resized_spectrogram = np.resize(spectrogram, (150, 150))
+
+    # Normalize the spectrogram
+    normalized_spectrogram = resized_spectrogram / np.max(np.abs(resized_spectrogram))
+
+    # Expand dimensions to match the model's input shape
+    x = np.expand_dims(normalized_spectrogram, axis=0)
+
+    # Make predictions using the model
+    predictions = model.predict(x)
+
+    if predictions[0][0] > predictions[0][1]:
+        return predictions[0][0]
+    return predictions[0][1]
+
+
+# Define the Gradio interface
+demo = gr.Blocks()
+mic_transcribe = gr.Interface(
+    fn=transcribe_and_predict,
+    inputs=gr.Audio(sources="microphone", type="numpy", block_size=1024),
+    outputs=gr.Image(),  # Assuming you want to visualize the spectrogram as an image
+)
+
+# Launch the Gradio interface
+mic_transcribe.launch(inbrowser=True, inline=True)
