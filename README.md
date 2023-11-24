@@ -3,11 +3,12 @@ Title: Gender Voice Recognition
 Accuracy: 📈 96%
 ---
 
+![image](https://github.com/CodeRic28/gender_voice_recognition/assets/51741804/5dc3526c-25d0-404a-8d5c-8a49c5142559)
+
 ## Spectrogram
 ![sample-000077](https://github.com/CodeRic28/gender_voice_recognition/assets/51741804/318bea3c-c633-4ebf-a357-cd159384c9ce)
 
 ## Metrics
-![Screenshot from 2023-11-23 21-58-31](https://github.com/CodeRic28/gender_voice_recognition/assets/51741804/c0f149c2-6fc4-4b7f-a7c0-07c59a7620c8)
 ![Screenshot from 2023-11-23 21-58-43](https://github.com/CodeRic28/gender_voice_recognition/assets/51741804/24276fb4-5105-4ab5-a178-c294f3145da6)
 
 ## Output
