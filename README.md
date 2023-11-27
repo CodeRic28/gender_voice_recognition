@@ -8,6 +8,9 @@ Accuracy: 📈 96%
 ## Spectrogram
 ![sample-000077](https://github.com/CodeRic28/gender_voice_recognition/assets/51741804/318bea3c-c633-4ebf-a357-cd159384c9ce)
 
+## Model
+![cnn_model](https://github.com/CodeRic28/gender_voice_recognition/assets/51741804/fefeea29-a655-435d-a452-11110e00e52e)
+
 ## Metrics
 ![Screenshot from 2023-11-23 21-58-43](https://github.com/CodeRic28/gender_voice_recognition/assets/51741804/24276fb4-5105-4ab5-a178-c294f3145da6)
 
